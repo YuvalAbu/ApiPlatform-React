@@ -14,7 +14,11 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- * @ApiResource
+ * @ApiResource(
+ *      normalizationContext={
+ *          "groups"={"users_read"}
+ *      }
+ * )
  * @UniqueEntity("email", message="This email is already taken")
  */
 class User implements UserInterface
@@ -23,13 +27,13 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"customers_read", "invoices_read", "invoices_subresource"})
+     * @Groups({"customers_read", "invoices_read", "invoices_subresource", "users_read"})
      */
     private $id;
     
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"customers_read", "invoices_read", "invoices_subresource"})
+     * @Groups({"customers_read", "invoices_read", "invoices_subresource", "users_read"})
      * @Assert\NotBlank(message="The firstname is required")
      * @Assert\Length(min=3,  minMessage="The firstname must have minimum 3 carateres", max=30, maxMessage="The firstname length must have max 30 carateres") 
      */
@@ -37,7 +41,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"customers_read", "invoices_read", "invoices_subresource"})
+     * @Groups({"customers_read", "invoices_read", "invoices_subresource", "users_read"})
      * @Assert\NotBlank(message="The lastName is required")
      * @Assert\Length(min=3,  minMessage="The lastName must have minimum 3 carateres", max=30, maxMessage="The lastName length must have max 30 carateres")
      */
@@ -45,7 +49,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"customers_read", "invoices_read", "invoices_subresource"})
+     * @Groups({"customers_read", "invoices_read", "invoices_subresource", "users_read"})
      * @Assert\NotBlank(message="Email is required")
      * @Assert\Email(message="Email format must be valid")
      */
@@ -53,6 +57,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="json")
+     * @Groups({"users_read"})
      */
     private $roles = [];
 
@@ -64,7 +69,8 @@ class User implements UserInterface
     private $password;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\customer", mappedBy="user")
+     * @ORM\OneToMany(targetEntity="App\Entity\Customer", mappedBy="user")
+     * @Groups({"users_read"})
      */
     private $customers;
 
