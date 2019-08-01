@@ -2,13 +2,20 @@
 
 namespace App\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @ApiResource
+ * @UniqueEntity("email", message="This email is already taken")
  */
 class User implements UserInterface
 {
@@ -16,11 +23,31 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"customers_read", "invoices_read", "invoices_subresource"})
      */
     private $id;
+    
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Groups({"customers_read", "invoices_read", "invoices_subresource"})
+     * @Assert\NotBlank(message="The firstname is required")
+     * @Assert\Length(min=3,  minMessage="The firstname must have minimum 3 carateres", max=30, maxMessage="The firstname length must have max 30 carateres") 
+     */
+    private $firstName;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Groups({"customers_read", "invoices_read", "invoices_subresource"})
+     * @Assert\NotBlank(message="The lastName is required")
+     * @Assert\Length(min=3,  minMessage="The lastName must have minimum 3 carateres", max=30, maxMessage="The lastName length must have max 30 carateres")
+     */
+    private $lastName;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
+     * @Groups({"customers_read", "invoices_read", "invoices_subresource"})
+     * @Assert\NotBlank(message="Email is required")
+     * @Assert\Email(message="Email format must be valid")
      */
     private $email;
 
@@ -32,18 +59,9 @@ class User implements UserInterface
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
+     * @Assert\NotBlank(message="Password is required")
      */
     private $password;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $firstName;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $lastName;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\customer", mappedBy="user")
