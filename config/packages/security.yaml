@@ -16,9 +16,9 @@ security:
             security: false
 
         registration:
-            pattern:  ^/api/login
-            stateless: true
+            pattern:  ^/api/users
             anonymous: true
+            stateless: true
             methods: ['POST']
 
         login:

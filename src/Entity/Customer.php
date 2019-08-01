@@ -32,13 +32,13 @@ class Customer
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"customers_read", "invoices_read"})     * 
+     * @Groups({"customers_read", "invoices_read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"customers_read", "invoices_read"})     *
+     * @Groups({"customers_read", "invoices_read"})
      * @Assert\NotBlank(message="The firstname is required")
      * @Assert\Length(min=3,  minMessage="The firstname must have minimum 3 carateres", max=30, maxMessage="The firstname length must have max 30 carateres") 
      */
