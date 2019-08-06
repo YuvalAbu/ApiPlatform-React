@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Field from '../components/forms/Field';
 import {Link} from 'react-router-dom';
 import CustomersAPI from '../services/CustomersAPI' 
+import FormContentLoader from '../components/loaders/FormContentLoader'
 
 
 const CustomerPage = ({match, history}) => {
@@ -22,15 +23,17 @@ const CustomerPage = ({match, history}) => {
 	})
 
 	const [editing, setEditing] = useState(false)
+	const [loading, setLoading] = useState(false)
+
 
 	const fectCustomer = async (id) => {
 		try {
 		
 			const {firstName, lastName, email, company} = await CustomersAPI.find(id);
 			setCustomer({firstName, lastName, email, company})
-				
+			setLoading(false)
 		}catch (error) {
-			console.log(error.response);
+			toast.error("Une erreur est survenue lors de la récupération des cutomers!");		
 			history.replace("/customers")			
 		}
 	}
@@ -38,6 +41,7 @@ const CustomerPage = ({match, history}) => {
 	useEffect(()=>{
 		if (id !== "new") {
 			setEditing(true)
+			setLoading(true)
 			fectCustomer(id)	
 		}
 	}, [id])
@@ -55,11 +59,12 @@ const CustomerPage = ({match, history}) => {
 		try {
 			if (editing) {
 				await CustomersAPI.update(customer, id)
-				console.log(response.data);
+				toast.success("Le client a bien été modifié !");		
 				setErrors({})
 			}else{
 				await CustomersAPI.create(customer)
 				setErrors({})
+				toast.success("Le client a bien été crée !");		
 				history.replace("/customers")
 			}
 
@@ -72,16 +77,19 @@ const CustomerPage = ({match, history}) => {
 					apiErrors[propertyPath] = message
 				})
 				setErrors(apiErrors);
-				
 			}
+			toast.error("Une erreur est survenue !");		
 		}
 		
 	}
 
 	return (
 		<>
-			 {!editing && <h1>Création d'un client</h1> || <h1>Modification d'un client</h1>}
+			{!editing && <h1>Création d'un client</h1> || <h1>Modification d'un client</h1>}
 
+			{loading && (<FormContentLoader/>)}
+
+			{!loading && (
 			<form onSubmit={handleSubmit}>
 				<Field
 					name="lastName"
@@ -119,6 +127,7 @@ const CustomerPage = ({match, history}) => {
 					<Link to="/customers" className="btn btn-link">Retour à la liste</Link>
 				</div>
 			</form>
+			)}
 		</>
 	)
 }

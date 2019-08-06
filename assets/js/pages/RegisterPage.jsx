@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import Field from '../components/forms/Field';
 import {Link} from 'react-router-dom';
-import axios from 'axios';
 import UsersAPI from '../services/UsersAPI';
+import {toast} from 'react-toastify';
 
 
 const RegisterPage = ({history}) => {
@@ -35,12 +35,14 @@ const RegisterPage = ({history}) => {
 		if(user.password !== user.passwordConfirm){
 			apiErrors.passwordConfirm = "Les mots de passes ne correspondent pas"
 			setErrors(apiErrors)
+			toast.error("Une erreur est survenue !");		
 			return;
 		}
 
 		try {
-			const response = await UsersAPI.register(user)
+			await UsersAPI.register(user)
 			setErrors({})
+			toast.success("Vous êtes désormais inscrit, vous pouvez vous connecter ✅");
 			history.replace("/login")
 		} catch({response}){
 			const {violations} = response.data
@@ -49,8 +51,8 @@ const RegisterPage = ({history}) => {
 					apiErrors[propertyPath] = message
 				})
 				setErrors(apiErrors);
-				
 			}
+			toast.error("Une erreur est survenue !");		
 		}
 		
 	}

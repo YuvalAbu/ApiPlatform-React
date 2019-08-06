@@ -4,6 +4,9 @@ import Select from '../components/forms/Select';
 import {Link} from 'react-router-dom';
 import CustomersAPI from '../services/CustomersAPI' 
 import InvoicesAPI from '../services/InvoicesAPI';
+import {toast} from 'react-toastify';
+import FormContentLoader from '../components/loaders/FormContentLoader'
+
 
 const InvoicePage = ({history, match}) => {
 
@@ -24,15 +27,19 @@ const InvoicePage = ({history, match}) => {
 	})
 
 	const [customers, setCustomers] = useState([])
+	const [loading, setLoading] = useState(true)
+
 
 	const fectCustomer = async () => {
 		try {
 			const data =  await CustomersAPI.findAll();
 			setCustomers(data)
+			setLoading(false)
 						
 			if (!invoice.customer) setInvoice({...invoice, customer: data[0].id})
 		}catch (error) {
 			console.log(error.response);
+			toast.error("Une erreur est survenue lors de la récupération des cutomers!");		
 			history.replace("/invoices")
 		}
 	}
@@ -41,9 +48,11 @@ const InvoicePage = ({history, match}) => {
 		try {
 			const {amount, status, customer} = await InvoicesAPI.find(id)
 			setInvoice({amount, status, customer : customer.id})
+			setLoading(false)
 			
 		} catch (error) {
 			console.log(error.response);
+			toast.error("Une erreur est survenue lors de la récupération des factures !");		
 			history.replace("/invoices")
 		}
 	}
@@ -70,8 +79,11 @@ const InvoicePage = ({history, match}) => {
 		try {
 			if (editing) {
 				await InvoicesAPI.update(invoice, id)
+				toast.success("La facture a bien été modifié !");		
+
 			}else{
 				await InvoicesAPI.create(invoice)
+				toast.success("La facture a bien été crée !");		
 				history.replace("/invoices")
 			}
 			
@@ -83,8 +95,9 @@ const InvoicePage = ({history, match}) => {
 					apiErrors[propertyPath] = message
 				})
 				setErrors(apiErrors);
-				
 			}
+			toast.error("Une erreur est survenue !");		
+
 		}
 		
 	}
@@ -93,7 +106,9 @@ const InvoicePage = ({history, match}) => {
 		<>
 			{!editing && <h1>Création d'une facture</h1> || <h1>Modification d'une facture</h1>}
 
+			{loading && (<FormContentLoader/>)}
 
+			{!loading && (
 			<form onSubmit={handleSubmit}>
 				<Field
 					name="amount"
@@ -134,6 +149,7 @@ const InvoicePage = ({history, match}) => {
 					<Link to="/invoices" className="btn btn-link">Retour au factures</Link>
 				</div>
 			</form>
+			)}
 		</>
 	 );
 }

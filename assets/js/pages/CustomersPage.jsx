@@ -2,20 +2,24 @@ import React, { useEffect, useState } from 'react';
 import Pagination from '../components/Pagination';
 import CustomersAPI from '../services/CustomersAPI';
 import {Link} from 'react-router-dom';
+import TableLoader from '../components/loaders/TableLoader'
+import {toast} from 'react-toastify';
 
 const CustomersPage = (props) => {
 
 	const [customers, setCustomers] = useState([]);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [search, setSearch] = useState("");
+	const [loading, setLoading] = useState(true)
 
 	// Permet de récupérer les customers
 	const fetchCustomers = async () =>{
 		try {
 			const data = await CustomersAPI.findAll()
 			setCustomers(data)
+			setLoading(false)
 		} catch (error) {
-			console.log(error.response);
+			toast.error("Une erreur est survenue lors de la récupération des cutomers!");		
 		}
 	}
 
@@ -33,8 +37,10 @@ const CustomersPage = (props) => {
 
 		try {
 			await CustomersAPI.delete(id)
+			toast.success("Le client a bien été supprimé!");		
 		} catch (error) {
 			setCustomers(originalCustomers)
+			toast.error("Une erreur est survenue !");		
 		}
 		
 	}
@@ -91,12 +97,14 @@ const CustomersPage = (props) => {
 						<th></th>
 					</tr>
 				</thead>
+				
+				{!loading && ( 
 				<tbody>
 					{paginatedCustomers.map(customer => (
 						<tr key={customer.id}>
 						<td>{customer.id}</td>
 						<td>
-							<a href="#">{customer.firstName} {customer.lastName}</a>
+							<Link to={"/customers/" + customer.id}>{customer.firstName} {customer.lastName}</Link>
 						</td>
 						<td>{customer.email}</td>
 						<td>{customer.company}</td>
@@ -118,7 +126,10 @@ const CustomersPage = (props) => {
 					</tr>
 					))}
 				</tbody>
+				)}
 			</table>
+			
+			{loading && (<TableLoader/>)}
 
       {itemsPerPage < filtredCustomers.length && (
 				<Pagination 
